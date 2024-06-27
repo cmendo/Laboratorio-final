@@ -36,41 +36,41 @@ jobs:
         fi
         set -e
 
-    # - name: Validando tipo de proyecto
-    #   id: tipoProyecto
-    #   if: steps.validateProjectOnSonar.outputs.proyectoExiste == '1'
-    #   run: |
-    #     pwd
-    #     ls -R
-    #     if [ -f "build.gradle" ]
-    #     then
-    #       echo "Proyecto Java"
-    #       if grep -q 'id "org.sonarqube" version "3.3"' build.gradle
-    #       then
-    #         echo "El plugin de SonarCloud ya está presente en build.gradle"
-    #       else
-    #         sed -i '/id '\''java'\''/a \ \ \ \ id '\''org.sonarqube'\'' version '\''3.3'\''' build.gradle
-    #         echo "El plugin de SonarCloud no estaba presente y se ha sido añadido a build.gradle"
-    #         cat build.gradle
-    #       fi
+    - name: Validando tipo de proyecto
+      id: tipoProyecto
+      if: steps.validateProjectOnSonar.outputs.proyectoExiste == '1'
+      run: |
+        pwd
+        ls -R
+        if [ -f "build.gradle" ]
+        then
+          echo "Proyecto Java"
+          if grep -q 'id "org.sonarqube" version "3.3"' build.gradle
+          then
+            echo "El plugin de SonarCloud ya está presente en build.gradle"
+          else
+            sed -i '/id '\''java'\''/a \ \ \ \ id '\''org.sonarqube'\'' version '\''3.3'\''' build.gradle
+            echo "El plugin de SonarCloud no estaba presente y se ha sido añadido a build.gradle"
+            cat build.gradle
+          fi
 
-    #     else
-    #       echo "Tipo de proyecto desconocido"
-    #     fi
+        else
+          echo "Tipo de proyecto desconocido"
+        fi
 
 
-    # - name: Enable execution gradlew
-    #   run: | 
-    #     chmod 777 gradlew
+    - name: Enable execution gradlew
+      run: | 
+        chmod 777 gradlew
 
-    # - name: Run SonarQube analysis
-    #   run: |
-    #     ./gradlew sonarqube \
-    #     -Dsonar.projectKey=laboratorio-final-key \
-    #     -Dsonar.organization=LABORATORIO-FINAL \
-    #     -Dsonar.host.url=https://sonarcloud.io \
-    #     -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-    #     -Dsonar.branch.name=feat-endlab
+    - name: Run SonarQube analysis
+      run: |
+        ./gradlew sonarqube \
+        -Dsonar.projectKey=laboratorio-final-key \
+        -Dsonar.organization=LABORATORIO-FINAL \
+        -Dsonar.host.url=https://sonarcloud.io \
+        -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+        -Dsonar.branch.name=feat-endlab
 
 
 #--------------------- SCA -------------------------------------------
