@@ -1,8 +1,8 @@
 name: PipelineCI
-  on:
-    push:
-      branch:
-        - feat-endlab
+on:
+  push:
+    branch:
+      - feat-endlab
 
 jobs:
   SAST:
