@@ -32,14 +32,10 @@ jobs:
     - name: List Built Files
       run: ls -l
 
-    # - name: Run SonarQube analysis
-    #   run: |
-    #     ./gradlew sonarqube \
-    #     -Dsonar.projectKey=cmendo_Laboratorio-final \
-    #     -Dsonar.organization=cmendo \
-    #     -Dsonar.host.url=https://sonarcloud.io \
-    #     -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-    #     -Dsonar.branch.name=feat-endlab
+     - name: Build Java
+      run: | 
+        chmod 777 gradlew
+        ./gradlew build
 
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@v2 
@@ -50,6 +46,7 @@ jobs:
         SONAR_ORGANIZATION: cmendo
       with:
         args: >
+          ./gradlew sonarqube
           -Dsonar.projectKey=cmendo_Laboratorio-final
           -Dsonar.organization=cmendo
           -Dsonar.sources=.
