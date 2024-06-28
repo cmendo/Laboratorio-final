@@ -18,6 +18,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
+    - name: Build
+      run: | 
+        chmod 777 gradlew
+        ./gradlew build
+
     - name: Validando existencia de proyecto en SonarCloud
       id: validateProjectOnSonar
       run: |
