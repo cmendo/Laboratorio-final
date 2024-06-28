@@ -160,6 +160,8 @@ jobs:
     - name : Pull docker img
       run: |
         docker pull cmendoza83/laboratoriofinal:latest
+        docker start cmendoza83/laboratoriofinal:latest
+        sleep 20
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
