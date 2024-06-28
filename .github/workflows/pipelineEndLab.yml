@@ -160,7 +160,7 @@ jobs:
     - name : Pull docker img
       run: |
         docker pull cmendoza83/laboratoriofinal:latest
-        docker start cmendoza83/laboratoriofinal:latest
+        docker run -p 8085:8085 --name laboratoriofinal -d cmendoza83/laboratoriofinal:latest
         sleep 20
     
     - name: Run Trivy vulnerability scanner
