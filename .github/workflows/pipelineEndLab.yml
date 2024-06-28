@@ -31,20 +31,29 @@ jobs:
     
     - name: List Built Files
       run: ls -l
-    
-  #   - name: SonarCloud Scan
-  #     uses: sonarsource/sonarcloud-github-action@v2 
-  #     env:
-  #       GITHUB_TOKEN: ${{ secrets.TOKEN_GH }}
-  #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #       SONAR_PROJECT_KEY: ArielAndresMarihuenMatus_Laboratorio-final
-  #       SONAR_ORGANIZATION: DevSecOpsArielMarihuen
+
+    - name: Analisis SonarCloud
+      run: |
+        mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar \
+        -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+        -Dsonar.host.url=https://sonarcloud.io \
+        -Dsonar.organization=devops-foundation-ciclo1-usach2024 \
+        -Dsonar.projectKey=devops-foundation-ciclo1-usach2024_ms-aumento-voto
+
+    # - name: SonarCloud Scan
+    #   uses: sonarsource/sonarcloud-github-action@v2 
+    #   env:
+    #     GITHUB_TOKEN: ${{ secrets.TOKEN_GH }}
+    #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+    #     SONAR_PROJECT_KEY: ArielAndresMarihuenMatus_Laboratorio-final
+    #     SONAR_ORGANIZATION: DevSecOpsArielMarihuen
   #     with:
   #       args: >
   #         -Dsonar.projectKey=ArielAndresMarihuenMatus_Laboratorio-final
   #         -Dsonar.organization=devsecopsarielmarihuen
   #         -Dsonar.sources=.
   #         -Dsonar.exclusions=**/node_modules/**
+
   #   - name: Check SAST Results
   #     run: |
   #       # Realiza una solicitud GET a la API de SonarCloud para buscar problemas críticos, altos y medios
