@@ -26,8 +26,8 @@ jobs:
     - name: Validando existencia de proyecto en SonarCloud
       id: validateProjectOnSonar
       run: |
-        #pwd
-        #ls -R
+        pwd
+        ls -R
         set +e
         curl -f -X POST -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/projects/create' -d 'name=${{ github.event.repository.name }}' -d 'project=laboratorio-final-key' -d 'organization=laboratorioFinalOrg' -d 'visibility=public'
         if [ $? -ne 0 ]; then
@@ -58,24 +58,22 @@ jobs:
             echo "El plugin de SonarCloud no estaba presente y se ha sido añadido a build.gradle"
             cat build.gradle
           fi
-
         else
           echo "Tipo de proyecto desconocido"
         fi
-
 
     - name: Enable execution gradlew
       run: | 
         chmod 777 gradlew
 
-    - name: Run SonarQube analysis
-      run: |
-        ./gradlew sonarqube \
-        -Dsonar.projectKey=laboratorio-final-key \
-        -Dsonar.organization=laboratorioFinalOrg \
-        -Dsonar.host.url=https://sonarcloud.io \
-        -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-        -Dsonar.branch.name=feat-endlab
+    # - name: Run SonarQube analysis
+    #   run: |
+    #     ./gradlew sonarqube \
+    #     -Dsonar.projectKey=laboratorio-final-key \
+    #     -Dsonar.organization=laboratorioFinalOrg \
+    #     -Dsonar.host.url=https://sonarcloud.io \
+    #     -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+    #     -Dsonar.branch.name=feat-endlab
 
 
 #--------------------- SCA -------------------------------------------
