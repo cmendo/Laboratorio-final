@@ -142,10 +142,10 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build --tag cmendoza83/LaboratorioFinal:latest .
+        docker build --tag cmendoza83/laboratoriofinal:latest .
     - name: Build Docker image
       run: |
-        docker push cmendoza83/LaboratorioFinal:latest
+        docker push cmendoza83/laboratoriofinal:latest
   
   DockerScan:
     needs: DockerBuild
@@ -159,16 +159,14 @@ jobs:
 
     - name : Pull docker img
       run: |
-        docker pull cmendoza83/LaboratorioFinal:latest
+        docker pull cmendoza83/laboratoriofinal:latest
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: 'cmendoza83/cursodevsecops-dkr:latest'
+        image-ref: 'cmendoza83/laboratoriofinal:latest'
         format: 'table'
     
     - name: Push Docker
       run: | 
-        docker push cmendoza83/cursodevsecops-dkr:latest
-        #docker start pet-clinic-deploy
-        sleep 10
+        docker push cmendoza83/laboratoriofinal:latest
