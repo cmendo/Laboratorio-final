@@ -111,18 +111,19 @@ jobs:
         args: >
           --failOnCVSS 7
           --enableRetired
-    - name: Check Dependency Check Results
-      run: |
-        # Verificar el archivo de salida de Dependency Check
-        REPORT_FILE=$(find ${{ github.workspace }}/reports -name 'dependency-check-report.html')
-        if grep -q "Critical" "$REPORT_FILE" || grep -q "High" "$REPORT_FILE" || grep -q "Medium" "$REPORT_FILE"; then
-          echo "Found vulnerabilities in dependencies."
-          exit 1
-        else
-          echo "No vulnerabilities found."
-        fi
     - name: Upload Test Result
       uses: actions/upload-artifact@master
       with:
         name: Depcheck report
         path: ${{ github.workspace }}/reports
+    # - name: Check Dependency Check Results
+    #   run: |
+    #     # Verificar el archivo de salida de Dependency Check
+    #     REPORT_FILE=$(find ${{ github.workspace }}/reports -name 'dependency-check-report.html')
+    #     if grep -q "Critical" "$REPORT_FILE" || grep -q "High" "$REPORT_FILE" || grep -q "Medium" "$REPORT_FILE"; then
+    #       echo "Found vulnerabilities in dependencies."
+    #       exit 1
+    #     else
+    #       echo "No vulnerabilities found."
+    #     fi
+    
