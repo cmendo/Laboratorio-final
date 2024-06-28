@@ -23,14 +23,14 @@ jobs:
     #  with:
     #    token: ${{ secrets.SONAR_TOKEN }}
 
-    # - name: Install dependencies with Yarn 
-    #   run: yarn install
+    - name: Install dependencies with Yarn 
+      run: yarn install
 
-    # - name: Build project
-    #   run: yarn run build
+    - name: Build project
+      run: yarn run build
     
-    # - name: List Built Files
-    #   run: ls -l
+    - name: List Built Files
+      run: ls -l
     
   #   - name: SonarCloud Scan
   #     uses: sonarsource/sonarcloud-github-action@v2 
