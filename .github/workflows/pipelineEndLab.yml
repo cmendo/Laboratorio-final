@@ -46,7 +46,6 @@ jobs:
         SONAR_ORGANIZATION: cmendo
       with:
         args: >
-          #./gradlew sonarqube
           -Dsonar.projectKey=cmendo_Laboratorio-final
           -Dsonar.organization=cmendo
           -Dsonar.sources=.
