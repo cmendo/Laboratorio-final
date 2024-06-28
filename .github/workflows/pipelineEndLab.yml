@@ -32,13 +32,14 @@ jobs:
     - name: List Built Files
       run: ls -l
 
-    - name: Analisis SonarCloud
+  - name: Run SonarQube analysis
       run: |
-        mvn clean verify org.sonarsource.scanner.maven:sonar-maven-plugin:3.11.0.3922:sonar \
-        -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+        ./gradlew sonarqube \
+        -Dsonar.projectKey=cmendo_Laboratorio-final \
+        -Dsonar.organization=cmendo \
         -Dsonar.host.url=https://sonarcloud.io \
-        -Dsonar.organization=devops-foundation-ciclo1-usach2024 \
-        -Dsonar.projectKey=devops-foundation-ciclo1-usach2024_ms-aumento-voto
+        -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+        -Dsonar.branch.name=feat-endlab
 
     # - name: SonarCloud Scan
     #   uses: sonarsource/sonarcloud-github-action@v2 
