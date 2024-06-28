@@ -32,7 +32,7 @@ jobs:
     - name: List Built Files
       run: ls -l
 
-     - name: Build Java
+    - name: Build Java
       run: | 
         chmod 777 gradlew
         ./gradlew build
