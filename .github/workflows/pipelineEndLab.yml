@@ -1,241 +1,122 @@
-name: PipelineCI
-on:
+on: 
   push:
-    branch:
+    branches:
       - feat-endlab
-
 jobs:
   SAST:
     runs-on: ubuntu-latest
     steps:
-    #CLONACION DEL REPOSITORIO
-    - name: Set up JDK 17
+
+    - name: Set up JDK 11
       uses: actions/setup-java@v2
       with:
-        java-version: '17'
         distribution: 'adopt'
+        java-version: '11'
+        
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
 
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.SONAR_TOKEN }}
 
-    - name: Build
-      run: | 
-        chmod 777 gradlew
-        ./gradlew build
+    - name: Install dependencies with Yarn 
+      run: yarn install
 
-    - name: Validando existencia de proyecto en SonarCloud
-      id: validateProjectOnSonar
-      run: |
-        pwd
-        ls -R
-        set +e
-        curl -f -X POST -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/projects/create' -d 'name=${{ github.event.repository.name }}' -d 'project=laboratorio-final-key' -d 'organization=laboratorioFinalOrg' -d 'visibility=public'
-        if [ $? -ne 0 ]; then
-          echo "Proyecto ya existe en Sonarcloud"
-          echo "::set-output name=proyectoExiste::1"
-        else
-          echo "Proyecto ${{ github.event.repository.name }} creado exitosamente en Sonarcloud"
-          
-          echo "Se establece rama main como rama por defecto"
-          curl -X POST -u '${{ secrets.SONAR_TOKEN }}:' 'https://sonarcloud.io/api/project_branches/rename' -d 'name=main' -d 'project=laboratorio-final-key'
-        fi
-        set -e
+    - name: Build project
+      run: yarn run build
+    
+    - name: List Built Files
+      run: ls -l
+    
+  #   - name: SonarCloud Scan
+  #     uses: sonarsource/sonarcloud-github-action@v2 
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.TOKEN_GH }}
+  #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #       SONAR_PROJECT_KEY: ArielAndresMarihuenMatus_Laboratorio-final
+  #       SONAR_ORGANIZATION: DevSecOpsArielMarihuen
+  #     with:
+  #       args: >
+  #         -Dsonar.projectKey=ArielAndresMarihuenMatus_Laboratorio-final
+  #         -Dsonar.organization=devsecopsarielmarihuen
+  #         -Dsonar.sources=.
+  #         -Dsonar.exclusions=**/node_modules/**
+  #   - name: Check SAST Results
+  #     run: |
+  #       # Realiza una solicitud GET a la API de SonarCloud para buscar problemas críticos, altos y medios
+  #       RESPONSE=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
+  #         "https://sonarcloud.io/api/issues/search?componentKeys=ArielAndresMarihuenMatus_Laboratorio-final&severities=CRITICAL,MAJOR,MINOR")
+        
+  #       # Extrae el número total de problemas encontrados
+  #       ISSUES_COUNT=$(echo "$RESPONSE" | jq -r .total)
+        
+  #       # Verifica si se encontraron problemas y muestra la cantidad encontrada
+  #       if [ "$ISSUES_COUNT" -gt 0 ]; then
+  #         echo "Found $ISSUES_COUNT vulnerabilities."
+  #         exit 1  # Esto hará que el pipeline falle si se encuentran vulnerabilidades
+  #       else
+  #         echo "No vulnerabilities found."
+  #       fi
+  #   - name: Check Quality Gate Status
+  #     run: |
+  #       echo "Checking Quality Gate status"
+  #       RESPONSE=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
+  #       "https://sonarcloud.io/api/qualitygates/project_status?projectKey=ArielAndresMarihuenMatus_Laboratorio-final")
+  #       echo "SonarCloud response: $RESPONSE"
+  #       SONAR_STATUS=$(echo "$RESPONSE" | jq -r .projectStatus.status)
+  #       if [ "$SONAR_STATUS" != "OK"]; then
+  #         echo "Quality Gate failed: $SONAR_STATUS"
+  #         exit 1
+  #       else
+  #         echo "Quality Gate passed: $SONAR_STATUS"
+  #       fi
+  #     env:
+  #       GITHUB_TOKEN: ${{ secrets.TOKEN_GH }}
+  #       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #       SONAR_PROJECT_KEY: ArielAndresMarihuenMatus_Laboratorio-final
+  #       SONAR_ORGANIZATION: DevSecOpsArielMarihuen
 
-    - name: Validando tipo de proyecto
-      id: tipoProyecto
-      if: steps.validateProjectOnSonar.outputs.proyectoExiste == '1'
-      run: |
-        pwd
-        ls -R
-        if [ -f "build.gradle" ]
-        then
-          echo "Proyecto Java"
-          if grep -q 'id "org.sonarqube" version "3.3"' build.gradle
-          then
-            echo "El plugin de SonarCloud ya está presente en build.gradle"
-          else
-            sed -i '/id '\''java'\''/a \ \ \ \ id '\''org.sonarqube'\'' version '\''3.3'\''' build.gradle
-            echo "El plugin de SonarCloud no estaba presente y se ha sido añadido a build.gradle"
-            cat build.gradle
-          fi
-        else
-          echo "Tipo de proyecto desconocido"
-        fi
-
-    - name: Enable execution gradlew
-      run: | 
-        chmod 777 gradlew
-
-    # - name: Run SonarQube analysis
-    #   run: |
-    #     ./gradlew sonarqube \
-    #     -Dsonar.projectKey=laboratorio-final-key \
-    #     -Dsonar.organization=laboratorioFinalOrg \
-    #     -Dsonar.host.url=https://sonarcloud.io \
-    #     -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-    #     -Dsonar.branch.name=feat-endlab
-
-
-#--------------------- SCA -------------------------------------------
-      
   # SCA:
-  #   needs: SAST #CON NEEDS CREAMOS LA DEPENDENCIA CON LA EJECUCION EXITOSA DEL JOB ANTERIOR
+  #   needs: SAST
   #   runs-on: ubuntu-latest
   #   steps:
-    
   #   - name: Checkout code
-  #     uses: actions/checkout@v2      
-
-  #   - name: Build #NO SE UTILIZA EL BUILD DEL JOB ANTERIOR PORQUE ESTE ES UN JOB NUEVO
-  #     id: build
+  #     uses: actions/checkout@v2
+      
+  #   - name: Set up JDK 11
+  #     uses: actions/setup-java@v2
+  #     with:
+  #       distribution: 'adopt'
+  #       java-version: '11'
+  #   - name: Dependency Check
+  #     uses: dependency-check/Dependency-Check_Action@1.1.0
+  #     env:
+  #       JAVA_HOME: /opt/jdk
+  #     id: Depcheck
+  #     with:
+  #       project: '${{ github.event.repository.name }}'
+  #       format: 'HTML'
+  #       path: '.'
+  #       out: 'report'
+  #       args: >
+  #         --failOnCVSS 7
+  #         --enableRetired
+  #   - name: Check Dependency Check Results
   #     run: |
-  #       #pwd
-  #       #ls -R
-  #       if [ -f "build.gradle" ]
-  #       then
-  #         echo "Utiliza build.gradle, proyecto Java"
-  #         echo "Se habilita permiso de ejecución de archivo gradlew"
-  #         chmod 777 gradlew
-  #         ./gradlew build
+  #       # Verificar el archivo de salida de Dependency Check
+  #       REPORT_FILE=$(find ${{ github.workspace }}/reports -name 'dependency-check-report.html')
+  #       if grep -q "Critical" "$REPORT_FILE" || grep -q "High" "$REPORT_FILE" || grep -q "Medium" "$REPORT_FILE"; then
+  #         echo "Found vulnerabilities in dependencies."
+  #         exit 1
   #       else
-  #         echo "Otro tipo de proyecto"
+  #         echo "No vulnerabilities found."
   #       fi
-    
-    # - name: Dependency Check  
-    #   uses: dependency-check/Dependency-Check_Action@1.1.0  #HERRAMIENTA OPENSOURCE PARA EL CHEQUEO DE DEPENDENCIAS DE TERCEROS
-    #   env:
-    #     JAVA_HOME: /opt/jdk
-    #   id: Depcheck
-    #   with:
-    #     project: '${{ github.event.repository.name }}'
-    #     path: '.'
-    #     format: 'HTML' #CON ESTO INDICAMOS EL FORMATO DEL INFORME QUE EN ESTE CASO SERA HTML
-    #     out: 'reports'
-    #     args: >
-    #       --failOnCVSS 7
-    #       --enableRetired
-
-    # - name: Upload Test result #CON ESTE FRAGMENTO DE CODIGO RESCATAMOS EL REPORTE GENERADO ANTERIORMENTE
-    #   uses: actions/upload-artifact@master
-    #   with:
-    #     name: Depcheck report
-    #     path: ${{github.workspace}}/reports
-
-    # - name: Upload JAR #CON ESTE FRAGMENTO DE CODIGO RESCATAMOS EL JAR GENERADO ANTERIORMENTE
-    #   uses: actions/upload-artifact@master
-    #   with:
-    #     name: JAR
-    #     path: ${{github.workspace}}/build/libs/ 
-
-
-        
-#-------------------- Docker Build Image ----------------------------
-
-  # DockerBuild:
-  #   needs: SCA
-  #   runs-on: self-hosted #ESTA LINEA ES PARA UTILIZAR EL RUNNER DE NUESTRA MAQUINA LOCAL
-  #   steps:
-
-#     - name: Checkout code
-#       uses: actions/checkout@v2
-
-#     - name: Docker Login
-#       uses: docker/login-action@v3.0.0
-#       with:
-#         username: ${{ secrets.DOCKER_USER }}
-#         password: ${{ secrets.DOCKER_TOKEN }}
-
-#     - name: Download JAR
-#       uses: actions/download-artifact@master #CON ESTE ACTION DESCARGAMOS EL JAR QUE GENERAMOS EN EL JOB ANTERIOR
-#       with:
-#         name: JAR
-#         path: ${{github.workspace}}
-    
-#     - name: Build Docker
-#       run: |
-#         docker build --tag cmendoza83/cursodevsecops-dkr:latest .
-#   #LO SIGUIENTE SE AGREGA PORQUE TRIVY NO TRABAJA EN MAQUINAS WINDOWS Y SE NECESITA EN EL SIGUIENTE JOB PUEDA SER ESCANEADO DESDE ubuntu-latest
-#     - name: Push Docker
-#       run: | 
-#         docker push cmendoza83/cursodevsecops-dkr:latest
-
-
-# # ------------------ Docker Scan ------------------------------------
-# #PARA ESTE PASO HAY QUE EJECUTAR EL ARCHIVO run.cmd DEL RUNNER
-#   DockerScan:
-#     needs: DockerBuild
-#     runs-on: ubuntu-latest
-#     steps:
-    
-#     - name: Docker Login
-#       uses: docker/login-action@v3.0.0
-#       with:
-#         username: ${{ secrets.DOCKER_USER }}
-#         password: ${{ secrets.DOCKER_PASS }}
-
-#     - name: Pull de la Imagen Docker
-#       run: |
-#         docker pull cmendoza83/cursodevsecops-dkr:latest
-    
-#     - name: Run Trivy vulnerability scanner
-#       uses: aquasecurity/trivy-action@master
-#       with:
-#         image-ref: 'cmendoza83/cursodevsecops-dkr:latest'
-#         format: 'table'
-    
-#     - name: Push Docker
-#       run: | 
-#         docker push cmendoza83/cursodevsecops-dkr:latest
-#         #docker start pet-clinic-deploy
-#         sleep 10
-
-
-# # ----------------- DAST -----------------------------------------
-
-#   DAST:
-#     needs: DockerScan
-#     runs-on: ubuntu-latest
-#     #runs-on: self-hosted
-#     steps:
-#     - name: Checkout repository
-#       uses: actions/checkout@v2
-
-#     - name: Set up Docker Buildx
-#       uses: docker/setup-buildx-action@v2
-
-#     - name: Docker Login
-#       uses: docker/login-action@v3.0.0
-#       with:
-#         username: ${{ secrets.DOCKER_USER }}
-#         password: ${{ secrets.DOCKER_TOKEN }}
-
-#     - name: Stop Docker container
-#       shell: bash
-#       run: |
-#         container_name="pet-clinic-deploy"
-#         if [ "$(docker ps -q -f name=$container_name)" ]; then
-#           echo "Deteniendo el contenedor $container_name..."
-#           docker stop $container_name
-#           sleep 30
-#         else
-#           echo "El contenedor $container_name no esta corriendo."
-#         fi
-
-#     - name: Despliegue Aplicacion
-#       run: |
-#         docker run -p 8085:8085 --name pet-clinic-deploy -d cmendoza83/cursodevsecops-dkr:latest
-
-#     - name: Sleep
-#       run: | 
-#         sleep 30
-
-#     - name: OWASP ZAP Scan
-#       uses: zaproxy/action-baseline@v0.11.0
-#       with:
-#         target: 'http://localhost:8085/'
-    
-    # - name: OWASP ZAP Scan
-    #   run: |
-    #     docker pull owasp/zap2docker-stable
-    #     docker run --rm -v ${PWD}:/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy & zap-baseline.py -t http://localhost:8085 -r DAST.html
-##########################################
+  #   - name: Upload Test Result
+  #     uses: actions/upload-artifact@master
+  #     with:
+  #       name: Depcheck report
+  #       path: ${{ github.workspace }}/reports
