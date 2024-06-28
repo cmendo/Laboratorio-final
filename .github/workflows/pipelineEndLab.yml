@@ -32,28 +32,28 @@ jobs:
     - name: List Built Files
       run: ls -l
 
-    - name: Run SonarQube analysis
-      run: |
-        ./gradlew sonarqube \
-        -Dsonar.projectKey=cmendo_Laboratorio-final \
-        -Dsonar.organization=cmendo \
-        -Dsonar.host.url=https://sonarcloud.io \
-        -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
-        -Dsonar.branch.name=feat-endlab
+    # - name: Run SonarQube analysis
+    #   run: |
+    #     ./gradlew sonarqube \
+    #     -Dsonar.projectKey=cmendo_Laboratorio-final \
+    #     -Dsonar.organization=cmendo \
+    #     -Dsonar.host.url=https://sonarcloud.io \
+    #     -Dsonar.token=${{ secrets.SONAR_TOKEN }} \
+    #     -Dsonar.branch.name=feat-endlab
 
-    # - name: SonarCloud Scan
-    #   uses: sonarsource/sonarcloud-github-action@v2 
-    #   env:
-    #     GITHUB_TOKEN: ${{ secrets.TOKEN_GH }}
-    #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-    #     SONAR_PROJECT_KEY: ArielAndresMarihuenMatus_Laboratorio-final
-    #     SONAR_ORGANIZATION: DevSecOpsArielMarihuen
-  #     with:
-  #       args: >
-  #         -Dsonar.projectKey=ArielAndresMarihuenMatus_Laboratorio-final
-  #         -Dsonar.organization=devsecopsarielmarihuen
-  #         -Dsonar.sources=.
-  #         -Dsonar.exclusions=**/node_modules/**
+    - name: SonarCloud Scan
+      uses: sonarsource/sonarcloud-github-action@v2 
+      env:
+     #   GITHUB_TOKEN: ${{ secrets.TOKEN_GH }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_PROJECT_KEY: cmendo_Laboratorio-final
+        SONAR_ORGANIZATION: cmendo
+      with:
+        args: >
+          -Dsonar.projectKey=cmendo_Laboratorio-final
+          -Dsonar.organization=cmendo
+          -Dsonar.sources=.
+          -Dsonar.exclusions=**/node_modules/**
 
   #   - name: Check SAST Results
   #     run: |
