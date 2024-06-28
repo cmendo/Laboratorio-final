@@ -127,7 +127,7 @@ jobs:
     #       echo "No vulnerabilities found."
     #     fi
 
-DockerBuild:
+  DockerBuild:
     runs-on: self-hosted
     steps: 
     - name: Checkout code 
