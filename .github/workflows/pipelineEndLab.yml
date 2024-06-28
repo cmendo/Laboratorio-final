@@ -86,7 +86,7 @@ jobs:
   #       SONAR_PROJECT_KEY: ArielAndresMarihuenMatus_Laboratorio-final
   #       SONAR_ORGANIZATION: DevSecOpsArielMarihuen
 
-  # SCA:
+  SCA:
     needs: SAST
     runs-on: ubuntu-latest
     steps:
