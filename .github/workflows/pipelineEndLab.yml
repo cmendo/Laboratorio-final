@@ -32,10 +32,10 @@ jobs:
     - name: List Built Files
       run: ls -l
 
-    - name: Build Java
-      run: | 
-        chmod 777 gradlew
-        ./gradlew build
+    # - name: Build Java
+    #   run: | 
+    #     chmod 777 gradlew
+    #     ./gradlew build
 
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@v2 
