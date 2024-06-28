@@ -18,10 +18,10 @@ jobs:
       with:
         node-version: '20'
 
-    # - name: Checkout code
-    #   uses: actions/checkout@v2
-    #   with:
-    #     token: ${{ secrets.SONAR_TOKEN }}
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        token: ${{ secrets.SONAR_TOKEN }}
 
     # - name: Install dependencies with Yarn 
     #   run: yarn install
