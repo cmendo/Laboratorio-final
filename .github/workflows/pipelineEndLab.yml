@@ -161,7 +161,7 @@ jobs:
       run: |
         docker pull cmendoza83/laboratoriofinal:latest
         docker run -p 8085:8085 --name laboratoriofinal -d cmendoza83/laboratoriofinal:latest
-        sleep 20
+        sleep 10
     
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
