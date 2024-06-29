@@ -36,7 +36,7 @@ jobs:
       uses: sonarsource/sonarcloud-github-action@v2 
       env:
      #   GITHUB_TOKEN: ${{ secrets.TOKEN_GH }}
-       SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_PROJECT_KEY: cmendo_Laboratorio-final
         SONAR_ORGANIZATION: cmendo
       with:
