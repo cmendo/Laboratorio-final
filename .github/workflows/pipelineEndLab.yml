@@ -168,7 +168,7 @@ jobs:
         image-ref: 'cmendoza83/endlabsdevsecops:latest'
         format: 'table'
         #VALORES PARA EXIT-CODE: 0 conitnua la pipeline, 1 detiene la pipeline
-        exit-code: 0
+        exit-code: 1
         ignore-unfixed: true
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH,MEDIUM,LOW'
