@@ -201,6 +201,6 @@ jobs:
     - name: Upload Test Result
       uses: actions/upload-artifact@master
       with:
-        echo "${{ github.workspace }}"
         name: zap-report
         path: ${{ github.workspace }}/reports
+      run: echo "${{ github.workspace }}"
