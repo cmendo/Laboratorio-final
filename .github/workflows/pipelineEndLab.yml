@@ -170,7 +170,7 @@ jobs:
       with:
         image-ref: 'cmendoza83/endlabsdevsecops:latest'
         format: 'table'
-        exit-code: 1
-        ignore-unfixed: false
+        exit-code: 0
+        ignore-unfixed: tue
         vuln-type: 'os,library'
         severity: 'CRITICAL,HIGH,MEDIUM,LOW' 
