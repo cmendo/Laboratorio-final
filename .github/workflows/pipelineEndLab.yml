@@ -44,7 +44,6 @@ jobs:
           -Dsonar.projectKey=cmendo_Laboratorio-final
           -Dsonar.organization=cmendo
           -Dsonar.sources=.
-        #  -Dsonar.exclusions=**/*.java
           -Dsonar.exclusions=**/node_modules/**
     
     - name: Verificando el resultado del Escaneo Sonar
