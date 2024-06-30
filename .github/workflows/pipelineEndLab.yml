@@ -60,7 +60,7 @@ jobs:
     #       exit 1  # quiebre de pipeline si se encuentran vulnerabilidades
     #     else
     #       echo "No  se encontraron vulnerabilidades."
-        fi
+    #    fi
   
     - name: Check Quality Gate Status
       run: |
