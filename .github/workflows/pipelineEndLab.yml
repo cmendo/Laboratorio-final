@@ -186,7 +186,7 @@ jobs:
     
     - name: Sleep
       run: |
-        sleep 20
+        sleep 15
 
     - name: ZAP Scan
       uses: zaproxy/action-baseline@v0.12.0
