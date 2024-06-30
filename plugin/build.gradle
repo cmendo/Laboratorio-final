@@ -61,11 +61,3 @@ tasks.named('test') {
 plugins {
     id "org.sonarqube" version "3.3"
 }
-
-sonarqube {
-    properties {
-        property "sonar.java.binaries", "build/classes"
-        // O para excluir archivos .java
-        // property "sonar.exclusions", "**/*.java"
-    }
-}
