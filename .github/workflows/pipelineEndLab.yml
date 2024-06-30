@@ -199,7 +199,6 @@ jobs:
         allow_issue_writing: false
 
     - name: Upload Test Result
-      run: echo "${{ github.workspace }}"
       uses: actions/upload-artifact@master
       with:
         name: zap-report
