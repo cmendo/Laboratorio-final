@@ -7,18 +7,19 @@ jobs:
   SAST:
     runs-on: ubuntu-latest
     steps:
-    - name: Set up JDK 11
+    
+    - name: Configuracion JDK 11
       uses: actions/setup-java@v2
       with:
         distribution: 'adopt'
         java-version: '11'
         
-    - name: Set up Node.js
+    - name: Configuracion Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
 
-    - name: Checkout code
+    - name: Verificacion de Codigo
       uses: actions/checkout@v2
       with:
         token: ${{ secrets.GH_TOKEN }}
@@ -28,9 +29,6 @@ jobs:
 
     - name: Build project
       run: yarn run build
-
-    #- name: List Built Files
-    #  run: ls -l
 
     - name: Escaneo con Sonar
       uses: sonarsource/sonarcloud-github-action@v2 
@@ -48,33 +46,34 @@ jobs:
     
     - name: Verificando el resultado del Escaneo Sonar
       run: |
-        # Realiza una solicitud GET a la API de SonarCloud para buscar problemas críticos, altos y medios
-        RESPONSE=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
+        # solicitud get a sonar para buscar problemas de nivel crítico, alto y medio
+        res=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
           "https://sonarcloud.io/api/issues/search?componentKeys=cmendo_Laboratorio-final&severities=CRITICAL,MAJOR,MINOR")
         
         # Obteniendo el número de issues encontrados
-        ISSUES_COUNT=$(echo "$RESPONSE" | jq -r .total)
+        issues=$(echo "$res" | jq -r .total)
         
         # Verifica si se encontraron problemas y muestra la cantidad encontrada
-        # if [ "$ISSUES_COUNT" -gt 0 ]; then
-        #   echo "Found $ISSUES_COUNT vulnerabilities."
-        #   exit 1  # Esto hará que el pipeline falle si se encuentran vulnerabilidades
-        # else
-        #   echo "No vulnerabilities found."
-        # fi
+        if [ "$issues" -gt 0 ]
+        then
+          echo "Vulnerabilidades $issues encontradas."
+          exit 1  # quiebre de pipeline si se encuentran vulnerabilidades
+        else
+          echo "No  se encontraron vulnerabilidades."
+        fi
   
     - name: Check Quality Gate Status
       run: |
         echo "Verificando el status Quality Gate"
-        RESPONSE=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
-        "https://sonarcloud.io/api/qualitygates/project_status?projectKey=ArielAndresMarihuenMatus_Laboratorio-final")
-        echo "SonarCloud response: $RESPONSE"
-        SONAR_STATUS=$(echo "$RESPONSE" | jq -r .projectStatus.status)
-        if [ "$SONAR_STATUS" != "OK"]; then
-          echo "Falla de Quality Gate: $SONAR_STATUS"
+        res=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
+        "https://sonarcloud.io/api/qualitygates/project_status?projectKey=cmendo_Laboratorio-final")
+        echo "SonarCloud response: $res"
+        status=$(echo "$res" | jq -r .projectStatus.status)
+        if [ "$status" != "OK"]; then
+          echo "Falla de Quality Gate: $status"
           exit 1
         else
-          echo "Quality Gate passed: $SONAR_STATUS"
+          echo "Estado de Quality Gate: $status"
         fi
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -82,128 +81,126 @@ jobs:
         SONAR_PROJECT_KEY: cmendo_Laboratorio-final
         SONAR_ORGANIZATION: cmendo
 
-####################### SCA ###################################
-  SCA:
-    needs: SAST
-    runs-on: ubuntu-latest
-    steps:
-    - name: Inspeccion de codigo
-      uses: actions/checkout@v2
+  # SCA:
+  #   needs: SAST
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #   - name: Inspeccion de codigo
+  #     uses: actions/checkout@v2
       
-    - name: Set up JDK 11
-      uses: actions/setup-java@v2
-      with:
-        distribution: 'adopt'
-        java-version: '11'
+  #   - name: Set up JDK 11
+  #     uses: actions/setup-java@v2
+  #     with:
+  #       distribution: 'adopt'
+  #       java-version: '11'
 
-    - name: Revision de Dependencias
-      uses: dependency-check/Dependency-Check_Action@1.1.0
-      env:
-        JAVA_HOME: /opt/jdk
-      id: Depcheck
-      with:
-        project: '${{ github.event.repository.name }}'
-        format: 'HTML'
-        path: '.'
-        out: 'report'
-        args: >
-          --failOnCVSS 7
-          --enableRetired
+  #   - name: Revision de Dependencias
+  #     uses: dependency-check/Dependency-Check_Action@1.1.0
+  #     env:
+  #       JAVA_HOME: /opt/jdk
+  #     id: Depcheck
+  #     with:
+  #       project: '${{ github.event.repository.name }}'
+  #       format: 'HTML'
+  #       path: '.'
+  #       out: 'report'
+  #       args: >
+  #         --failOnCVSS 7
+  #         --enableRetired
 
-    - name: Carga de Resultados de Test
-      uses: actions/upload-artifact@master
-      with:
-        name: Depcheck report
-        path: ${{ github.workspace }}/reports
+  #   - name: Carga de Resultados de Test
+  #     uses: actions/upload-artifact@master
+  #     with:
+  #       name: Depcheck report
+  #       path: ${{ github.workspace }}/reports
 
-    # - name: Revision de resultados de chequeo de dependencias
-    #   run: |
-    #     # Verificar el archivo de salida de Dependency Check
-    #     REPORT_FILE=$(find ${{ github.workspace }}/reports -name 'dependency-check-report.html')
-    #     if grep -q "Critical" "$REPORT_FILE" || grep -q "High" "$REPORT_FILE" || grep -q "Medium" "$REPORT_FILE"; then
-    #       echo "Vulnerabilidades encontradas en dependencias."
-    #       # exit 1
-    #       exit 1
-    #     else
-    #       echo "No se encontraron vulnerabilidades."
-    #     fi
+  #   - name: Revision de resultados de chequeo de dependencias
+  #     run: |
+  #       # Verificar el archivo de salida de Dependency Check
+  #       REPORT_FILE=$(find ${{ github.workspace }}/reports -name 'dependency-check-report.html')
+  #       if grep -q "Critical" "$REPORT_FILE" || grep -q "High" "$REPORT_FILE" || grep -q "Medium" "$REPORT_FILE"; then
+  #         echo "Vulnerabilidades encontradas en dependencias."
+  #         exit 1
+  #       else
+  #         echo "No se encontraron vulnerabilidades."
+  #       fi
 
   ####################### Image Security ###################################
-  DockerBuild:
-    needs: SCA
-    runs-on: ubuntu-latest
-    steps: 
-    - name: Checkout code 
-      uses: actions/checkout@v2
+#   DockerBuild:
+#     needs: SCA
+#     runs-on: ubuntu-latest
+#     steps: 
+#     - name: Checkout code 
+#       uses: actions/checkout@v2
 
-    - name: Docker login
-      uses: docker/login-action@v3.0.0
-      with:
-        username: ${{ secrets.DOCKER_USER }}
-        password: ${{ secrets.DOCKER_TOKEN }}
+#     - name: Docker login
+#       uses: docker/login-action@v3.0.0
+#       with:
+#         username: ${{ secrets.DOCKER_USER }}
+#         password: ${{ secrets.DOCKER_TOKEN }}
 
-    - name: Build Docker image
-      run: |
-        docker build --build-arg TMDB_V3_API_KEY=f1d2f3563cfe5d725355dd5563d86260 --tag cmendoza83/endlabsdevsecops:latest .
+#     - name: Build Docker image
+#       run: |
+#         docker build --build-arg TMDB_V3_API_KEY=f1d2f3563cfe5d725355dd5563d86260 --tag cmendoza83/endlabsdevsecops:latest .
     
-    - name: Push Docker image
-      run: |
-        docker push cmendoza83/endlabsdevsecops:latest
+#     - name: Push Docker image
+#       run: |
+#         docker push cmendoza83/endlabsdevsecops:latest
   
-  ImageSecurity:
-    needs: DockerBuild
-    runs-on: ubuntu-latest
-    steps:
+#   ImageSecurity:
+#     needs: DockerBuild
+#     runs-on: ubuntu-latest
+#     steps:
   
-    - name: Docker Login
-      uses: docker/login-action@v3.1.0
-      with:
-        username: ${{ secrets.DOCKER_USER }}
-        password: ${{ secrets.DOCKER_TOKEN }}
+#     - name: Docker Login
+#       uses: docker/login-action@v3.1.0
+#       with:
+#         username: ${{ secrets.DOCKER_USER }}
+#         password: ${{ secrets.DOCKER_TOKEN }}
   
-    - name: Pull de la Imagen Docker
-      run: | 
-        docker pull cmendoza83/endlabsdevsecops:latest
+#     - name: Pull de la Imagen Docker
+#       run: | 
+#         docker pull cmendoza83/endlabsdevsecops:latest
   
-    - name: Run Trivy vulnerability scanner
-      uses: aquasecurity/trivy-action@master
-      with:
-        image-ref: 'cmendoza83/endlabsdevsecops:latest'
-        format: 'table'
-        #VALORES PARA EXIT-CODE: 0 conitnua la pipeline, 1 detiene la pipeline
-        exit-code: 0
-        ignore-unfixed: true
-        vuln-type: 'os,library'
-        severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+#     - name: Run Trivy vulnerability scanner
+#       uses: aquasecurity/trivy-action@master
+#       with:
+#         image-ref: 'cmendoza83/endlabsdevsecops:latest'
+#         format: 'table'
+#         #VALORES PARA EXIT-CODE: 0 conitnua la pipeline, 1 detiene la pipeline
+#         exit-code: 0
+#         ignore-unfixed: true
+#         vuln-type: 'os,library'
+#         severity: 'CRITICAL,HIGH,MEDIUM,LOW'
 
-####################### DAST ###################################
-  DAST:
-    needs: ImageSecurity
-    runs-on: ubuntu-latest
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+# ####################### DAST ###################################
+#   DAST:
+#     needs: ImageSecurity
+#     runs-on: ubuntu-latest
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
 
-    - name: Start Application
-      run: |
-        docker run -d --name netflix-app -p 8080:80 cmendoza83/endlabsdevsecops:latest
+#     - name: Start Application
+#       run: |
+#         docker run -d --name netflix-app -p 8080:80 cmendoza83/endlabsdevsecops:latest
     
-    - name: Sleep
-      run: |
-        sleep 20
+#     - name: Sleep
+#       run: |
+#         sleep 20
 
-    - name: ZAP Scan
-      uses: zaproxy/action-baseline@v0.12.0
-      with:
-        token: ${{ secrets.GH_TOKEN }}
-        docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
-        target: 'http://localhost:8080'
-        rules_file_name: '.zap/rules.tsv'
-        cmd_options: '-a'
-        allow_issue_writing: false
+#     - name: ZAP Scan
+#       uses: zaproxy/action-baseline@v0.12.0
+#       with:
+#         token: ${{ secrets.GH_TOKEN }}
+#         docker_name: 'ghcr.io/zaproxy/zaproxy:stable'
+#         target: 'http://localhost:8080'
+#         rules_file_name: '.zap/rules.tsv'
+#         cmd_options: '-a'
+#         allow_issue_writing: false
 
-    - name: Upload Test Result
-      uses: actions/upload-artifact@master
-      with:
-        name: zap-report
-        path: ${{ github.workspace }}/reports
+#     - name: Upload Test Result
+#       uses: actions/upload-artifact@master
+#       with:
+#         name: zap-report
+#         path: ${{ github.workspace }}/reports
