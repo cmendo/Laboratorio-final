@@ -126,7 +126,6 @@ jobs:
           echo "No se encontraron vulnerabilidades."
         fi
 
-#ImageSecurity
   DockerBuild:
     needs: SCA
     runs-on: ubuntu-latest
