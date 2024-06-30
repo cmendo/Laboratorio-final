@@ -133,17 +133,17 @@ jobs:
     - name: Checkout code 
       uses: actions/checkout@v2
 
-    - name: Docker login
+    - name: Logeo de Docker
       uses: docker/login-action@v3.0.0
       with:
         username: ${{ secrets.DOCKER_USER }}
         password: ${{ secrets.DOCKER_TOKEN }}
 
-    - name: Build Docker image
+    - name: Construccion de Imagen de Docker
       run: |
         docker build --build-arg TMDB_V3_API_KEY=f1d2f3563cfe5d725355dd5563d86260 --tag cmendoza83/endlabsdevsecops:latest .
     
-    - name: Push Docker image
+    - name: Push Imagen Docker
       run: |
         docker push cmendoza83/endlabsdevsecops:latest
   
@@ -152,7 +152,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
   
-    - name: Docker Login
+    - name: Logeo de Docker
       uses: docker/login-action@v3.1.0
       with:
         username: ${{ secrets.DOCKER_USER }}
@@ -162,7 +162,7 @@ jobs:
       run: | 
         docker pull cmendoza83/endlabsdevsecops:latest
   
-    - name: Run Trivy vulnerability scanner
+    - name: Escaneo de Vulnerabilidades con Trivy
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: 'cmendoza83/endlabsdevsecops:latest'
@@ -180,7 +180,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Start Application
+    - name: Arranque de aplicacion
       run: |
         docker run -d --name netflix-app -p 8080:80 cmendoza83/endlabsdevsecops:latest
     
@@ -198,7 +198,7 @@ jobs:
         cmd_options: '-a'
         allow_issue_writing: false
 
-    - name: Upload Test Result
+    - name: Carga de Reporte
       uses: actions/upload-artifact@master
       with:
         name: zap-report
