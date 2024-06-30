@@ -64,8 +64,8 @@ plugins {
 
 sonarqube {
     properties {
-        //property "sonar.java.binaries", "build/classes"
+        property "sonar.java.binaries", "build/classes"
         // O para excluir archivos .java
-        property "sonar.exclusions", "**/*.java"
+        // property "sonar.exclusions", "**/*.java"
     }
 }
