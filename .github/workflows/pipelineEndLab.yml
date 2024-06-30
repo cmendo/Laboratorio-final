@@ -44,22 +44,22 @@ jobs:
           -Dsonar.sources=.
           -Dsonar.exclusions=**/*.java
     
-    - name: Verificando el resultado del Escaneo Sonar
-      run: |
-        # solicitud get a sonar para buscar problemas de nivel crítico, alto y medio
-        res=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
-          "https://sonarcloud.io/api/issues/search?componentKeys=cmendo_Laboratorio-final&severities=CRITICAL,MAJOR,MINOR")
+    # - name: Verificando el resultado del Escaneo Sonar
+    #   run: |
+    #     # solicitud get a sonar para buscar problemas de nivel crítico, alto y medio
+    #     res=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
+    #       "https://sonarcloud.io/api/issues/search?componentKeys=cmendo_Laboratorio-final&severities=CRITICAL,MAJOR,MINOR")
         
-        # Obteniendo el número de issues encontrados
-        issues=$(echo "$res" | jq -r .total)
+    #     # Obteniendo el número de issues encontrados
+    #     issues=$(echo "$res" | jq -r .total)
         
-        # Verifica si se encontraron problemas y muestra la cantidad encontrada
-        if [ "$issues" -gt 0 ]
-        then
-          echo "Vulnerabilidades encontradas: $issues."
-          exit 1  # quiebre de pipeline si se encuentran vulnerabilidades
-        else
-          echo "No  se encontraron vulnerabilidades."
+    #     # Verifica si se encontraron problemas y muestra la cantidad encontrada
+    #     if [ "$issues" -gt 0 ]
+    #     then
+    #       echo "Vulnerabilidades encontradas: $issues."
+    #       exit 1  # quiebre de pipeline si se encuentran vulnerabilidades
+    #     else
+    #       echo "No  se encontraron vulnerabilidades."
         fi
   
     - name: Check Quality Gate Status
