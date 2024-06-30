@@ -127,3 +127,50 @@ jobs:
     #     else
     #       echo "No se encontraron vulnerabilidades."
     #     fi
+
+  ####################### Image Security ###################################
+  DockerBuild:
+    needs: SCA
+    runs-on: ubuntu-latest
+    steps: 
+    - name: Checkout code 
+      uses: actions/checkout@v2
+
+    - name: Docker login
+      uses: docker/login-action@v3.0.0
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    - name: Build Docker image
+      run: |
+        docker build --build-arg TMDB_V3_API_KEY=f1d2f3563cfe5d725355dd5563d86260 --tag cmendoza83/endlabsdevsecops:latest .
+    
+    - name: Push Docker image
+      run: |
+        docker push cmendoza83/endlabsdevsecops:latest
+  
+  ImageSecurity:
+    needs: DockerBuild
+    runs-on: ubuntu-latest
+    steps:
+  
+    - name: Docker Login
+      uses: docker/login-action@v3.1.0
+      with:
+        username: ${{ secrets.DOCKER_USER }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+  
+    - name: Pull de la Imagen Docker
+      run: | 
+        docker pull cmendoza83/endlabsdevsecops:latest
+  
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: 'cmendoza83/endlabsdevsecops:latest'
+        format: 'table'
+        exit-code: 1
+        ignore-unfixed: true
+        vuln-type: 'os,library'
+        severity: 'CRITICAL,HIGH,MEDIUM,LOW' 
