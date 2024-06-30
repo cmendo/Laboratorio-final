@@ -23,7 +23,7 @@ jobs:
       with:
         token: ${{ secrets.GH_TOKEN }}
 
-    - name: Install dependencies with Yarn 
+    - name: Instalando dependencias 
       run: yarn install
 
     - name: Build project
@@ -32,7 +32,7 @@ jobs:
     #- name: List Built Files
     #  run: ls -l
 
-    - name: SonarCloud Scan
+    - name: Escaneo con Sonar
       uses: sonarsource/sonarcloud-github-action@v2 
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
@@ -44,15 +44,16 @@ jobs:
           -Dsonar.projectKey=cmendo_Laboratorio-final
           -Dsonar.organization=cmendo
           -Dsonar.sources=.
-          -Dsonar.exclusions=**/*.java
+        #  -Dsonar.exclusions=**/*.java
+          -Dsonar.exclusions=**/node_modules/**
     
-    - name: Check SAST Results
+    - name: Verificando el resultado del Escaneo Sonar
       run: |
         # Realiza una solicitud GET a la API de SonarCloud para buscar problemas críticos, altos y medios
         RESPONSE=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
           "https://sonarcloud.io/api/issues/search?componentKeys=cmendo_Laboratorio-final&severities=CRITICAL,MAJOR,MINOR")
         
-        # Extrae el número total de problemas encontrados
+        # Obteniendo el número de issues encontrados
         ISSUES_COUNT=$(echo "$RESPONSE" | jq -r .total)
         
         # Verifica si se encontraron problemas y muestra la cantidad encontrada
@@ -65,14 +66,13 @@ jobs:
   
     - name: Check Quality Gate Status
       run: |
-        echo "Checking Quality Gate status"
+        echo "Verificando el status Quality Gate"
         RESPONSE=$(curl -s -u ${{ secrets.SONAR_TOKEN }}: \
         "https://sonarcloud.io/api/qualitygates/project_status?projectKey=ArielAndresMarihuenMatus_Laboratorio-final")
         echo "SonarCloud response: $RESPONSE"
         SONAR_STATUS=$(echo "$RESPONSE" | jq -r .projectStatus.status)
         if [ "$SONAR_STATUS" != "OK"]; then
-          echo "Quality Gate failed: $SONAR_STATUS"
-          # exit 1
+          echo "Falla de Quality Gate: $SONAR_STATUS"
           exit 1
         else
           echo "Quality Gate passed: $SONAR_STATUS"
